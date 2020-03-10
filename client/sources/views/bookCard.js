@@ -1,10 +1,8 @@
 import {JetView} from 'webix-jet';
-import likesModel from '../models/likes';
-import {toggleElement} from '../scripts'; 
-import {DUMMYCOVER} from '../consts'; 
 import booksModel from '../models/books';
+import {DUMMYCOVER} from '../consts';
+import {toggleElement, addItem, updateItem} from '../scripts'; 
 import filesModel from '../models/files';
-import ordersModel from '../models/orders';
 
 export default class BookCard extends JetView {
 	config() {
@@ -20,30 +18,83 @@ export default class BookCard extends JetView {
 		};
 
 		const bookCard = {
-			localId: 'bookCardReader',			
+			localId: 'bookCardLibrarian',
 			view: 'form',
+			borderless: true,
 			elements: [
-				{ view: 'text', label: 'Title', labelWidth: 130, width: 310, labelAlign: 'right', name: 'bookTitle', readonly: true },
-				{ view: 'text', label: 'Author', labelWidth: 130, width: 310, labelAlign: 'right', name: 'authorName', readonly: true },
-				{ view: 'text', label: 'Genres', labelWidth: 130, width: 310, labelAlign: 'right', name: 'genres', readonly: true },
-				{ view: 'text', label: 'Country', labelWidth: 130, width: 310, labelAlign: 'right', name: 'countryOfPublication', readonly: true },
-				{ view: 'text', label: 'Publishing house', labelWidth: 130, width: 310, labelAlign: 'right', name: 'publishingHouse', readonly: true },
-				{ view: 'text', label: 'Available copies', labelWidth: 130, width: 310, labelAlign: 'right', name: 'availableCopies', readonly: true },
-				{ view: 'text', label: 'Pages', labelWidth: 130, width: 310, labelAlign: 'right', name: 'numberOfPages', readonly: true }
-			]			
+				{ view: 'text', label: 'Title', labelWidth: 130, width: 310, labelAlign: 'right', name: 'bookTitle' },
+				{ view: 'text', label: 'Author', labelWidth: 130, width: 310, labelAlign: 'right', name: 'authorName' },
+				{ view: 'combo', label: 'Genres', labelWidth: 130, width: 310, labelAlign: 'right', name: 'genres', options: [
+					'', 'Fiction', 'Fantasy', 'Thriller', 'Horror', 'Mystery', 'Historical', 'Westerns', 'Family', 'Dark comedy'
+				]},
+				{ view: 'text', label: 'Country', labelWidth: 130, width: 310, labelAlign: 'right', name: 'countryOfPublication' },
+				{ view: 'text', label: 'Publishing house', labelWidth: 130, width: 310, labelAlign: 'right', name: 'publishingHouse' },
+				{ view: 'text', label: 'Available copies', labelWidth: 130, width: 310, labelAlign: 'right', name: 'availableCopies' },
+				{ view: 'text', label: 'Pages', labelWidth: 130, width: 310, labelAlign: 'right', name: 'numberOfPages' },
+				{ view: 'datepicker', label: 'Year of publication', labelWidth: 130, width: 310, labelAlign: 'right', type: 'year', format: '%Y', name: 'yearOfPublication' },
+				{ view: 'text', label: 'Cover photo', labelWidth: 130, width: 310, labelAlign: 'right', name: 'coverPhoto' }
+			]
+		};
+
+		const addTextFile = {
+			view: 'uploader',
+			label: '<i class="fas fa-file-upload"></i> Upload text file',
+			localId: 'bookFiles',
+			type: 'htmlbutton',
+			autosend: false,
+			width: 150,
+			formData: () => ({
+				userId: this.userId,
+				bookId: this.bookId
+			}),
+			accept: 'text/plain, application/pdf, .doc, .docx',
+			upload: 'http://localhost:3000/files/upload/text',
+			link: 'filesList'
+		};
+
+		const filesList = {
+			view: 'list',
+			type: 'uploader',
+			id: 'filesList',
+			autoheight:true, 
+			borderless:true
+		};
+
+		const addAudioFile = {
+			view: 'uploader',
+			label: '<i class="fas fa-music"></i> Upload audio',
+			localId: 'audioFiles',
+			type: 'htmlbutton',
+			autosend: false,
+			width: 150,
+			formData: () => {
+				return {
+					userId: this.userId,
+					bookId: this.bookId
+				};
+			},
+			accept: '.mp3',
+			upload: 'http://localhost:3000/files/upload/audio',
+			link: 'audioList'
+		};
+
+		const audioList = {
+			view: 'list',
+			type: 'uploader',
+			id: 'audioList',
+			autoheight:true, 
+			borderless:true
 		};
 
 		const availableTextFiles = {
 			view: 'activeList',
 			localId: 'availableTextFiles',
-			template: '#name#<span class="list_button"><i class = "fas fa-download"></i></span>',
-			on: {
-				onItemClick: (id) => {
-					const bookName = this.$$('availableTextFiles').getItem(id).name;
-
-					filesModel.downloadItem(id).then((res) => {
-						webix.html.download(res, bookName);
-					});
+			autoheight: true,
+			template: '#name# <span class="list_button"><i class = "fas fa-times"></i></span>',
+			onClick: {
+				'fa-times': (ev, id) => {
+					this.removeFile(this.$$('availableTextFiles'), id);
+					return false;
 				}
 			}
 		};
@@ -51,194 +102,156 @@ export default class BookCard extends JetView {
 		const availableAudioFiles = {
 			view: 'activeList',
 			localId: 'availableAudioFiles',
-			type:{
-				height:100
-			},
-			template: "#name#<audio controls preload='metadata'><source src='http://localhost:3000/audio/#id#' type='audio/mpeg'></audio>"
-		};
-
-		const orderBook = {
-			view: 'button',
-			localId: 'orderBook',
-			type: 'htmlbutton',
-			label: '<i class="far fa-hand-paper"></i> Order',
-			width: 100,
-			click: () => { 
-				this.orderBook();
+			autoheight: true,
+			template: '#name# <span class="list_button"><i class = "fas fa-times"></i></span>',
+			onClick: {
+				'fa-times': (ev, id) => {
+					this.removeFile(this.$$('availableAudioFiles'), id);
+					return false;
+				}
 			}
 		};
 
-		const downloadBook = {
+		const saveBtn = {
 			view: 'button',
-			localId: 'downloadBook',
-			type: 'icon',
-			icon: 'fas fa-download',
-			width: 60,
-			click: () => { 
-				this.orderBook();
-			}
-		};
-
-		const likeBook = {
-			view: 'button',
-			localId: 'likeButton',
-			css: 'like_button',
-			type: 'icon', 
-			icon: 'far fa-heart',
-			width: 45,
-			click: () => { 
-				this.likeBook();
+			type: 'form',
+			label: 'Save',
+			width: 80,
+			click: () => {
+				this.saveForm();
 			}
 		};
 
 		return {
 			view: 'popup',
-			position:'center',
+			position: 'center',
 			maxHeight: 550,
-			body:{
+			body: {
 				view: 'scrollview',
 				body: {
 					rows: [
-						bookCover, bookCard, availableTextFiles, availableAudioFiles,
+						bookCover, 
+						bookCard,
+						{
+							view: 'template',
+							template: 'Files',
+							autoheight: true,
+							css: 'center'
+						},
+						{height: 2},
+						availableTextFiles,
+						availableAudioFiles,
+						filesList,
+						audioList,
+						{height: 15},
+						{ 
+							localId: 'addingFilesButtons',
+							margin: 10,
+							cols: [ {}, addTextFile, addAudioFile, {} ] 
+						},
+						{height: 1},
 						{
 							paddingY: 10,
 							paddingX: 15,
 							margin: 10,
-							cols: [
-								orderBook, downloadBook, {}, likeBook
-							]
+							borderless: true,
+							cols: [{}, saveBtn, {}]
 						}
-					] 
-				}
+					]
+				}				
 			}
 		};
 	}
-	
-	showPopup(id) {
-		this.likeButton = this.$$('likeButton');
-		this.form = this.$$('bookCardReader');
-		this.filesList = this.$$('availableTextFiles');
-		this.audiosList = this.$$('availableAudioFiles');
-		this.orderBtn = this.$$('orderBook');
+
+	init() {
+		this.form = this.$$('bookCardLibrarian');
+		this.dtLibrary = $$('dtLibrary');
+	}
+
+	showPopup(book) {
+		this.clearForm();
+		this.isNew = book ? false : true;
+		this.bookId = book._id || '';
 		this.userId = this.getParam('id', true);
-		this.bookCover = this.$$('bookCover');
 
-		booksModel.getBook(id).then((bookData) => {
-			const book = bookData.json();
+		toggleElement(!this.isNew, this.$$('bookCover'));
+		toggleElement(!this.isNew, this.$$('addingFilesButtons'));
 
-			this.book = book;
-			this.bookId = book.id;
+		if(!this.isNew) {
+			booksModel.getBook(book._id).then((res) => {
+				// const filesArr = book.files;
+				// const textFiles = [];
+				// const audioFiles = [];
 
-			this.clearForm();
+				// filesArr.forEach((file) => {
+				// 	switch(file.dataType) {
+				// 		case 'text':
+				// 			textFiles.push(file);
+				// 			break;
+				// 		case 'audio':
+				// 			audioFiles.push(file);
+				// 			break;
+				// 	}
+				// });
 
-			this.form.setValues(book);
-			this.bookCover.setValues(book.coverPhoto || DUMMYCOVER);
-			this.likeButton.define('badge', book.count_likes || '0');
+				const date_ = res.data.getBook.yearOfPublication;
+				this.form.setValues(res.data.getBook);
+				this.$$('bookCover').setValues(book.coverPhoto || DUMMYCOVER);
+				// this.$$('availableTextFiles').parse(textFiles);
+				// this.$$('availableAudioFiles').parse(audioFiles);
+			});						
+		}		
 
-			const filesArr = book.files;
-			const textFiles = [];
-			const audioFiles = [];
+		this.getRoot().show();	
+	}
 
-			filesArr.forEach((file) => {
-				switch(file.dataType) {
-					case 'text': 
-						textFiles.push(file);
-						break;
-					case 'audio': 
-						audioFiles.push(file);
-						break;
+	successAction (newData) {
+		this.webix.message('Success');
+		this.dtLibrary.parse(newData.json());
+		this.hideWindow();
+	}
+
+	saveForm() {
+		const data = this.form.getValues();
+
+		if(this.form.validate()) {
+			if(this.isNew) {
+				addItem(booksModel, data, this.successAction.bind(this));
+			}
+			else {
+				updateItem(booksModel, data, this.successAction.bind(this));
+			}
+
+			this.$$('bookFiles').send((response) => {
+				if(response){
+					this.webix.message(response.message);
 				}
 			});
-			this.filesList.parse(textFiles);
-			this.audiosList.parse(audioFiles);
 
-			toggleElement(textFiles.length, this.$$('downloadBook'));
-			toggleElement(book.availableCopies, this.$$('orderBook'));
-			
-			this.toggleLike(book.userId == this.userId);
-			this.toggleOrder(book.orderDate);
-	
-			this.getRoot().show();			
-			
-			let audioRecords = document.getElementsByTagName('audio');
-			audioRecords = Array.from(audioRecords);
-
-			audioRecords.forEach((el) => {
-				el.addEventListener('seeked', function() {
-					log(this.currentTime);
-				});
+			this.$$('audioFiles').send((response) => {
+				if(response){
+					this.webix.message(response.message);
+				}
 			});
+		}		
+	}
+
+	removeFile(targetList, id) {
+		filesModel.removeItem(id).then(() => {
+			targetList.remove(id);
 		});
 	}
 
-	orderBook() {
-		const order = {
-			userId: this.userId,
-			bookId: this.bookId,
-			orderDate: new Date()
-		};
-
-		ordersModel.addItem(order).then(() => {
-			this.setOrderedVal();
-		});
+	hideWindow() {
+		this.clearForm();
+		this.getRoot().hide();
 	}
 
-	setOrderedVal() {
-		this.orderBtn.define('label', 'Ordered'); 
-		this.orderBtn.refresh();
-		this.orderBtn.disable();
-	}
-
-	unsetOrderedVal() {
-		this.orderBtn.define('label', '<i class="far fa-hand-paper"></i> Order');  
-		this.orderBtn.refresh();
-		this.orderBtn.enable();
-	}
-
-	toggleOrder(ordered) {
-		if(ordered) {
-			this.setOrderedVal();
-		}
-		else {
-			this.unsetOrderedVal();
-		}
-	}
-
-	likeBook() {
-		if(this.book.userId == this.userId) {
-			likesModel.removeLike(this.userId, this.bookId).then(() => {
-				this.unsetLike();
-			});
-		}
-		else {
-			likesModel.addLike(this.userId, this.bookId).then(() => {
-				this.setLike();
-			});
-		}	
-	}	
-
-	toggleLike(condition) {
-		if(condition) {
-			this.setLike();
-		}
-		else {
-			this.unsetLike();
-		}
-	}
-
-	setLike() {
-		this.likeButton.define('icon', 'fas fa-heart');
-		this.likeButton.refresh();
-	}
-
-	unsetLike() {
-		this.likeButton.define('icon', 'far fa-heart');
-		this.likeButton.refresh();
-	}
-
-	clearForm() {
+	clearForm (){
+		this.form.clearValidation();
 		this.form.clear();
-		this.filesList.clearAll();
+		this.$$('bookFiles').files.clearAll();
+		this.$$('audioFiles').files.clearAll();
 		this.$$('availableTextFiles').clearAll();
 		this.$$('availableAudioFiles').clearAll();
 	}

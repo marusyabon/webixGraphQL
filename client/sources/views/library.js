@@ -51,7 +51,7 @@ export default class Library extends JetView {
 					sort: 'date',
 					width: 80,
 					css: 'center',
-					format: webix.Date.dateToStr("%Y"),
+					format: (val) => {return new Date(val).getFullYear()},
 					header: ['Year', {content: 'dateRangeFilter'}]
 				},
 				{
@@ -113,7 +113,7 @@ export default class Library extends JetView {
 
 		try {
 			const dbData = await booksModel.getDataFromServer();
-			let booksArr = dbData.data.getBooks;
+			let booksArr = dbData.data.getAllBooks;
 			booksArr = booksArr.map((el) => {
 				el.year_of_publication ? new Date(el.year_of_publication) : '';
 				return el;

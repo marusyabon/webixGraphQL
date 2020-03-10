@@ -1,8 +1,11 @@
 import {buildSchema} from 'graphql';
 
 const schema = buildSchema(`
+    scalar Date
+
     type Query {
-        getBooks: [Book]
+        getAllBooks: [Book]
+        getBook(bookID: ID): Book
     }
 
     type Book {
@@ -15,7 +18,7 @@ const schema = buildSchema(`
 	    countryOfPublication: String
         genres: String
         availableCopies: Int
-        yearOfPublication: String
+        yearOfPublication: Date
         isFiles: Boolean
         viewedTimes: Int
         orderedTimes: Int
@@ -30,7 +33,7 @@ const schema = buildSchema(`
 	    countryOfPublication: String
         genres: String
         availableCopies: Int
-        yearOfPublication: String
+        yearOfPublication: Date
     }
 
     type Mutation {

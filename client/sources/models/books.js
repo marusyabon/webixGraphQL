@@ -1,27 +1,11 @@
+import {getBookQuery, getAllBooksQuery} from '../graphqlQueries';
+
 class BooksModel {
 	constructor() {
 		this._data = [];
 	}
 
 	async getDataFromServer() {
-		var query = `query {
-			getBooks {
-				_id
-				coverPhoto,
-				bookTitle,
-				numberOfPages,
-				authorName,
-				publishingHouse,
-				countryOfPublication,
-				genres,
-				availableCopies,
-				yearOfPublication,
-				isFiles,
-				viewedTimes,
-				orderedTimes
-			}
-		}`;
-
 		const data = await fetch('http://localhost:3000/graphql', {
 			method: 'POST',
 			headers: {
@@ -29,14 +13,25 @@ class BooksModel {
 				'Accept': 'application/json'
 			},
 			body: JSON.stringify({
-				query
+				query: getAllBooksQuery
 			})
 		});
 		return data.json();
 	}
 
-	getBook(bookId) {
-		return webix.ajax().get(`${this._url}${bookId}`);
+	async getBook(bookID) {
+		const data = await fetch('http://localhost:3000/graphql', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Accept': 'application/json'
+			},
+			body: JSON.stringify({
+				query: getBookQuery,
+				variables: {bookID}
+			})
+		});
+		return data.json();
 	}
 
 	addItem(data, func) {
