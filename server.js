@@ -1,7 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import graphqlHTTP from 'express-graphql';
-const path = require('path');
 
 import schema from './src/schemas';
 import resolvers from './src/resolvers';
@@ -9,11 +8,17 @@ import resolvers from './src/resolvers';
 let port = 3000;
 const app = express();
 
-app.use('/graphql', graphqlHTTP({
-    schema: schema,
-    rootValue: resolvers,
-    graphiql: true
-}));
+app.use('/graphql', (req, res) => {
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+
+    return graphqlHTTP({
+        schema: schema,
+        rootValue: resolvers,
+        graphiql: true,
+        context: { req, res }
+    })(req, res)
+});
 
 app.listen(port);
 

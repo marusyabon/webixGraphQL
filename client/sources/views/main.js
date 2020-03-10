@@ -54,7 +54,7 @@ export default class MainView extends JetView{
 	init() {
 		this.grid = this.$$('ordersList');
 		this.userId = this.getParam("id", true);
-		this.parseBooks();		
+		// this.parseBooks();		
 	}
 
 	async parseBooks() {

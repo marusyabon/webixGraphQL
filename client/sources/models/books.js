@@ -1,23 +1,43 @@
-import {URL} from '../consts';
-
 class BooksModel {
 	constructor() {
 		this._data = [];
-		this._url = `${URL}/books/`;
 	}
 
-	getDataFromServer(id) {
-		const userId = {userId: id};
-		fetch('/', {
-			method: 'GET',
+	async getDataFromServer() {
+		var query = `query {
+			getBooks {
+				_id
+				bookTitle,
+				numberOfPages,
+				authorName,
+				genres,
+				availableCopies
+			}
+		}`;
+
+		await fetch('http://localhost:3000/graphql', {
+			method: 'POST',
 			headers: {
-			  'Content-Type': 'application/json',
-			  'Accept': 'application/json',
+				'Content-Type': 'application/json',
+				'Accept': 'application/json'
 			},
-			body: JSON.stringify({query: "{ getBooks }"})
-		  })
-			.then(r => r.json())
-			.then(data => data);
+			body: JSON.stringify({
+				query
+			})
+		})
+		.then(r => r.json())
+		.then(data => console.log('data returned:', data));
+
+		// return webix.proxy("GraphQL", `query {
+		// 	getBooks {
+		// 		_id
+		// 		bookTitle,
+		// 		numberOfPages,
+		// 		authorName,
+		// 		genres,
+		// 		availableCopies
+		// 	}
+		// }`);
 	}
 
 	getBook(bookId) {

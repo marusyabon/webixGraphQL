@@ -1,5 +1,7 @@
 import {JetView} from 'webix-jet';
 import BookCard from './bookCard';
+import booksModel from '../models/books';
+import filesModel from '../models/files';
 
 export default class Library extends JetView {
 	config() {
@@ -95,22 +97,27 @@ export default class Library extends JetView {
 	async init() {
 		this.grid = $$('dt_library');
 		await this.getData();
-		await this.getFiles();
+		// await this.getFiles();
 		this.checkFiles();		
 
 		this.grid.parse(this.booksArr);
 		this._bookCard = this.ui(BookCard);
 	}
 
-	async getData() {		
-		const dbData = await booksModel.getDataFromServer();
-		let booksArr = dbData.json();
+	async getData() {	
+		this.booksArr = [];
 
-		booksArr = booksArr.map((el) => {
-			el.year_of_publication = new Date(el.year_of_publication);
-			return el;
-		});
-		this.booksArr = booksArr;
+		try {
+			const dbData = await booksModel.getDataFromServer();
+			let booksArr = dbData.json();
+			booksArr = booksArr.map((el) => {
+				el.year_of_publication = new Date(el.year_of_publication);
+				return el;
+			});
+			this.booksArr = booksArr;
+		} catch (err) {
+			console.log(err)
+		}
 	}
 
 	async getFiles() {
