@@ -1,12 +1,12 @@
 import Book from '../models/books';
 
 const resolvers = {
-    getBooks: async (obj, context, info) => {
+    getBooks: async () => {
         const books = await Book.find({});
         return books;
     },
 
-    addBook: ({input}, context, info) => {
+    addBook: ({input}) => {
         const book = new Book(input);
         book.save();
         return book;

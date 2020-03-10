@@ -21,13 +21,13 @@ export default class Library extends JetView {
 					hidden: true,
 				},
 				{
-					id: 'book_title',
+					id: 'bookTitle',
 					sort: 'text',
 					fillspace: 1,
 					header: ['Title', {content: 'textFilter'}]
 				},
 				{
-					id: 'author_name',
+					id: 'authorName',
 					sort: 'text',
 					fillspace: 1,
 					header: ['Author', {content: 'textFilter'}]
@@ -39,48 +39,52 @@ export default class Library extends JetView {
 					css: 'center',
 					header: ['Genres', {content: 'selectFilter'}]
 				},
-				// {
-				// 	id: 'country_of_publication',
-				// 	sort: 'text',
-				// 	width: 80,
-				// 	css: 'center',
-				// 	header: ['Country', {content: 'selectFilter'}]
-				// },
 				{
-					id: 'year_of_publication',
+					id: 'countryOfPublication',
+					sort: 'text',
+					width: 80,
+					css: 'center',
+					header: ['Country', {content: 'selectFilter'}]
+				},
+				{
+					id: 'yearOfPublication',
 					sort: 'date',
 					width: 80,
 					css: 'center',
 					format: webix.Date.dateToStr("%Y"),
 					header: ['Year', {content: 'dateRangeFilter'}]
 				},
-				// {
-				// 	id: 'available_copies',
-				// 	width: 80,
-				// 	css: 'center',
-				// 	header: 'Available'
-				// },
-				// {
-				// 	id: 'ebook',
-				// 	header: ['eBook', {content:"selectFilter"}],
-				// 	width: 70,
-				// 	template: (obj) => {
-				// 		return obj.ebook==='yes' ? '<i class="fas fa-check"></i>' : ''
-				// 	}					
-				// },
+				{
+					id: 'availableCopies',
+					width: 80,
+					css: 'center',
+					header: 'Available'
+				},
+				{
+					id: 'ebook',
+					header: ['eBook', {content:"selectFilter"}],
+					width: 70,
+					template: (obj) => {
+						return obj.ebook==='yes' ? '<i class="fas fa-check"></i>' : ''
+					}					
+				},
 				{
 					id: 'viewCol',
 					header: 'View',
 					css: 'center',
 					width: 50,
 					template: '<i class="fas fa-eye"></i>'
+				},
+				{
+					id: 'removeCol',
+					header: 'Remove',
+					css: 'center',
+					width: 70,
+					template: '<i class="fas fa-trash"></i>'
 				}
 			],
 			onClick: {
 				'fa-eye': (e, id) => {
-					this.showBookCard(id);
-				},
-				'fa-edit': (e, id) => {
 					this.showBookCard(id);
 				},
 				'fa-trash': (e, id) => {
@@ -98,7 +102,7 @@ export default class Library extends JetView {
 		this.grid = $$('dt_library');
 		await this.getData();
 		// await this.getFiles();
-		this.checkFiles();		
+		// this.checkFiles();		
 
 		this.grid.parse(this.booksArr);
 		this._bookCard = this.ui(BookCard);
@@ -109,9 +113,9 @@ export default class Library extends JetView {
 
 		try {
 			const dbData = await booksModel.getDataFromServer();
-			let booksArr = dbData.json();
+			let booksArr = dbData.data.getBooks;
 			booksArr = booksArr.map((el) => {
-				el.year_of_publication = new Date(el.year_of_publication);
+				el.year_of_publication ? new Date(el.year_of_publication) : '';
 				return el;
 			});
 			this.booksArr = booksArr;

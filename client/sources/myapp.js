@@ -19,7 +19,6 @@ export default class MyApp extends JetApp{
 if (!BUILD_AS_MODULE){
 	webix.ready(() => {
 		const app = new MyApp();
-		// webix.proxy.GraphQL.url = 'http://localhost:3000/graphql';
 		app.render();
 
 		app.attachEvent("app:error:resolve", (name, error) => {

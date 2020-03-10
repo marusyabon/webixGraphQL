@@ -7,15 +7,22 @@ class BooksModel {
 		var query = `query {
 			getBooks {
 				_id
+				coverPhoto,
 				bookTitle,
 				numberOfPages,
 				authorName,
+				publishingHouse,
+				countryOfPublication,
 				genres,
-				availableCopies
+				availableCopies,
+				yearOfPublication,
+				isFiles,
+				viewedTimes,
+				orderedTimes
 			}
 		}`;
 
-		await fetch('http://localhost:3000/graphql', {
+		const data = await fetch('http://localhost:3000/graphql', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -24,20 +31,8 @@ class BooksModel {
 			body: JSON.stringify({
 				query
 			})
-		})
-		.then(r => r.json())
-		.then(data => console.log('data returned:', data));
-
-		// return webix.proxy("GraphQL", `query {
-		// 	getBooks {
-		// 		_id
-		// 		bookTitle,
-		// 		numberOfPages,
-		// 		authorName,
-		// 		genres,
-		// 		availableCopies
-		// 	}
-		// }`);
+		});
+		return data.json();
 	}
 
 	getBook(bookId) {
