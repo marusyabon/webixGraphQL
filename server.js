@@ -13,17 +13,17 @@ app.use('/graphql', (req, res) => {
     res.set('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
 
     return graphqlHTTP({
-        schema: schema,
+        schema,
         rootValue: resolvers,
         graphiql: true,
-        context: { req, res }
-    })(req, res)
+        context: {req, res}
+    })(req, res);
 });
 
 app.listen(port);
 
-mongoose.connect('mongodb://localhost:27017/webixGraphqlDB', { useNewUrlParser: true }, function (err, db) {
-	if(!err) {
-		console.log('Mongo connected');
-	}
+mongoose.connect('mongodb://localhost:27017/webixGraphqlDB', {useNewUrlParser: true}, (err, db) => {
+    if (!err) {
+        console.log('Mongo connected');
+    }
 });
