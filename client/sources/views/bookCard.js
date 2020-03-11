@@ -24,7 +24,7 @@ export default class BookCard extends JetView {
 			elements: [
 				{ view: 'text', label: 'Title', labelWidth: 130, width: 310, labelAlign: 'right', name: 'bookTitle' },
 				{ view: 'text', label: 'Author', labelWidth: 130, width: 310, labelAlign: 'right', name: 'authorName' },
-				{ view: 'combo', label: 'Genres', labelWidth: 130, width: 310, labelAlign: 'right', name: 'genres', options: [
+				{ view: 'combo', label: 'Genres', labelWidth: 130, value: "111", width: 310, labelAlign: 'right', name: 'genres', options: [
 					'', 'Fiction', 'Fantasy', 'Thriller', 'Horror', 'Mystery', 'Historical', 'Westerns', 'Family', 'Dark comedy'
 				]},
 				{ view: 'text', label: 'Country', labelWidth: 130, width: 310, labelAlign: 'right', name: 'countryOfPublication' },
@@ -194,8 +194,8 @@ export default class BookCard extends JetView {
 				// 	}
 				// });
 
-				const date_ = res.data.getBook.yearOfPublication;
 				this.form.setValues(res.data.getBook);
+				this.form.elements.genres.setValue(res.data.getBook.genres);
 				this.$$('bookCover').setValues(book.coverPhoto || DUMMYCOVER);
 				// this.$$('availableTextFiles').parse(textFiles);
 				// this.$$('availableAudioFiles').parse(audioFiles);

@@ -21,7 +21,10 @@
     "url": "https://github.com/marusyabon/webixGraphQL/issues"
   },
   "homepage": "https://github.com/marusyabon/webixGraphQL#readme",
-  "dependencies": {},
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "fs": "0.0.1-security"
+  },
   "devDependencies": {
     "@babel/core": "^7.8.7",
     "@babel/node": "^7.8.7",

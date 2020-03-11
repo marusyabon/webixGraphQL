@@ -1,17 +1,18 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import graphqlHTTP from 'express-graphql';
+import path from 'path';
 
 import schema from './src/schemas';
 import resolvers from './src/resolvers';
 
-let port = 3000;
+const PORT = 3000;
 const app = express();
 
-app.use('/graphql', (req, res) => {
-    res.set('Access-Control-Allow-Origin', '*');
-    res.set('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/', express.static(path.join(__dirname, 'public')));
+app.use('/graphql', (req, res) => {
     return graphqlHTTP({
         schema,
         rootValue: resolvers,
@@ -20,7 +21,7 @@ app.use('/graphql', (req, res) => {
     })(req, res);
 });
 
-app.listen(port);
+app.listen(PORT);
 
 mongoose.connect('mongodb://localhost:27017/webixGraphqlDB', {useNewUrlParser: true}, (err, db) => {
     if (!err) {
