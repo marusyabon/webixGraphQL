@@ -23,8 +23,9 @@ app.use('/graphql', (req, res) => {
 
 app.listen(PORT);
 
-mongoose.connect('mongodb://localhost:27017/webixGraphqlDB', {useNewUrlParser: true}, (err, db) => {
-    if (!err) {
-        console.log('Mongo connected');
-    }
+mongoose.connect(
+    'mongodb://localhost:27017/webixGraphqlDB',
+    {useNewUrlParser: true, useFindAndModify: false},
+    (err, db) => {
+    if (!err) console.log('Mongo connected');
 });

@@ -195,7 +195,6 @@ export default class BookCard extends JetView {
 				// });
 
 				this.form.setValues(res.data.getBook);
-				this.form.elements.genres.setValue(res.data.getBook.genres);
 				this.$$('bookCover').setValues(book.coverPhoto || DUMMYCOVER);
 				// this.$$('availableTextFiles').parse(textFiles);
 				// this.$$('availableAudioFiles').parse(audioFiles);

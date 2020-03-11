@@ -1,7 +1,8 @@
-import {Schema} from 'mongoose';
+import mongoose from 'mongoose';
 import {GraphQLScalarType} from 'graphql';
 import {Kind} from 'graphql/language';
 import Book from '../models/books';
+import { truncateSync } from 'fs';
 
 const resolvers = {
     getAllBooks: async () => {
@@ -9,15 +10,43 @@ const resolvers = {
         return books;
     },
 
-    getBook: async (bookID) => {
-        const result = await Book.find({id: Schema.ObjectId(bookID)}).lean();
+    getBook: async ({bookID}) => {
+        const id = mongoose.Types.ObjectId(bookID);
+        const result = await Book.find(id).lean();
         return result[0];
     },
 
-    addBook: ({input}) => {
+    addBook: async ({input}) => {
         const book = new Book(input);
-        book.save();
+        await book.save();
         return book;
+    },
+
+    updateBook: async ({bookID, input}) => {
+        const id = mongoose.Types.ObjectId(bookID);
+
+        const request = await Book.findOneAndUpdate(
+            id,
+            {...input},
+            {
+                fields: Object.keys(input),
+                new: true
+            }
+        );
+
+        if (request) {
+            const result = await Book.find(id);
+            return result[0];
+        }
+    },
+
+    deleteBook: async ({bookID}) => {
+        const id = mongoose.Types.ObjectId(bookID);
+        const result = await Book.deleteOne({_id: id});
+        if (result.n) {
+            return true;
+        }
+        return false;
     },
 
     Date: new GraphQLScalarType({
@@ -34,7 +63,7 @@ const resolvers = {
                 return parseInt(ast.value, 10);
             }
             return null;
-        },
+        }
     })
 };
 
