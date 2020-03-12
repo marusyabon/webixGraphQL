@@ -11,9 +11,19 @@ export default class Library extends JetView {
 			css: 'center page_header'
 		};
 
+		const addBookBtn = {
+			view: 'button',
+			value: 'Add book',
+			type: 'form',
+			width: 100,
+			click: () => {
+				this.addBook();
+			}
+		};
+
 		const dtable = {
 			view: 'datatable',
-			id: 'dt_library',
+			id: 'dtLibrary',
 			select: true,
 			columns: [
 				{
@@ -51,7 +61,12 @@ export default class Library extends JetView {
 					sort: 'date',
 					width: 80,
 					css: 'center',
-					format: (val) => {return new Date(val).getFullYear()},
+					format: (val) => {
+						if (val) {
+							return new Date(val).getFullYear()
+						}
+						return '-'
+					},
 					header: ['Year', {content: 'dateRangeFilter'}]
 				},
 				{
@@ -93,13 +108,21 @@ export default class Library extends JetView {
 			}
 		};
 
+		const footer = {
+			cols: [
+				{},
+				addBookBtn,
+				{}
+			]
+		}
+
 		return {
-			rows: [header, dtable]
+			rows: [header, dtable, footer]
 		};
 	}
 
 	async init() {
-		this.grid = $$('dt_library');
+		this.grid = $$('dtLibrary');
 		await this.getData();
 		// await this.getFiles();
 		// this.checkFiles();		
@@ -143,7 +166,20 @@ export default class Library extends JetView {
 	}
 
 	showBookCard(id) {
-		const book = this.booksArr.find(el => el.id == id);
+		const book = this.grid.getItem(id);
 		this._bookCard.showPopup(book);
+	}
+
+	async removeBook(id) {
+		const book = this.grid.getItem(id);
+		const result = await booksModel.removeItem(book._id);
+		if (result) {
+			return this.grid.remove(id);
+		}
+		return false;		
+	}
+
+	addBook() {
+		this._bookCard.showPopup();
 	}
 }

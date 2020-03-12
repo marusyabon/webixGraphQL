@@ -1,4 +1,5 @@
-import {getBookQuery, getAllBooksQuery} from '../graphqlQueries';
+import {getBookQuery, getAllBooksQuery, addBookQuery, updateBookQuery, deleteBookQuery} from '../graphqlQueries';
+import {URL} from '../consts';
 
 class BooksModel {
 	constructor() {
@@ -6,7 +7,7 @@ class BooksModel {
 	}
 
 	async getDataFromServer() {
-		const data = await fetch('http://localhost:3000/graphql', {
+		const data = await fetch(URL, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -20,7 +21,7 @@ class BooksModel {
 	}
 
 	async getBook(bookID) {
-		const data = await fetch('http://localhost:3000/graphql', {
+		const data = await fetch(URL, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -34,20 +35,49 @@ class BooksModel {
 		return data.json();
 	}
 
-	addItem(data, func) {
-		return webix.ajax().post(this._url, data, func);
+	async addItem(input) {
+		const data = await fetch(URL, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Accept': 'application/json'
+			},
+			body: JSON.stringify({
+				query: addBookQuery,
+				variables: {input}
+			})
+		});
+		return data.json();
 	}
 
-	updateItem(data) {
-		return webix.ajax().put(this._url, data);
+	async updateItem(bookID, input) {
+		const data = await fetch(URL, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Accept': 'application/json'
+			},
+			body: JSON.stringify({
+				query: updateBookQuery,
+				variables: {bookID, input}
+			})
+		});
+		return data.json();
 	}
 
-	removeItem(id) {
-		return webix.ajax().del(`${this._url}${id}`);
-	}
-
-	search(req) {
-		return webix.ajax().get(`${this._url}search/${req}`);
+	async removeItem(bookID) {
+		const data = await fetch(URL, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Accept': 'application/json'
+			},
+			body: JSON.stringify({
+				query: deleteBookQuery,
+				variables: {bookID}
+			})
+		});
+		return data.json();
 	}
 }
 

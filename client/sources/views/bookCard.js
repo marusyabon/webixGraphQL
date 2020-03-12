@@ -1,7 +1,7 @@
 import {JetView} from 'webix-jet';
 import booksModel from '../models/books';
 import {DUMMYCOVER} from '../consts';
-import {toggleElement, addItem, updateItem} from '../scripts'; 
+import {toggleElement} from '../scripts'; 
 import filesModel from '../models/files';
 
 export default class BookCard extends JetView {
@@ -171,13 +171,14 @@ export default class BookCard extends JetView {
 	showPopup(book) {
 		this.clearForm();
 		this.isNew = book ? false : true;
-		this.bookId = book._id || '';
-		this.userId = this.getParam('id', true);
+		this.bookId = book ? book._id : '';
+		// toggleElement(!this.isNew, this.$$('bookCover'));
+		// toggleElement(!this.isNew, this.$$('addingFilesButtons'));
 
-		toggleElement(!this.isNew, this.$$('bookCover'));
-		toggleElement(!this.isNew, this.$$('addingFilesButtons'));
-
-		if(!this.isNew) {
+		if (this.isNew) {
+			this.$$('bookCover').hide();
+		}
+		else {
 			booksModel.getBook(book._id).then((res) => {
 				// const filesArr = book.files;
 				// const textFiles = [];
@@ -204,21 +205,37 @@ export default class BookCard extends JetView {
 		this.getRoot().show();	
 	}
 
-	successAction (newData) {
-		this.webix.message('Success');
-		this.dtLibrary.parse(newData.json());
-		this.hideWindow();
-	}
-
-	saveForm() {
+	async saveForm() {
 		const data = this.form.getValues();
 
-		if(this.form.validate()) {
-			if(this.isNew) {
-				addItem(booksModel, data, this.successAction.bind(this));
+		data.numberOfPages = Number.parseInt(data.numberOfPages);
+		data.availableCopies = Number.parseInt(data.availableCopies);
+
+		if (this.form.validate()) {
+			if (this.isNew) {
+				const response = await booksModel.addItem(data);
+				if (response) {
+					this.dtLibrary.clearAll();
+					const newData = await booksModel.getDataFromServer();
+					this.dtLibrary.parse(newData.data.getAllBooks);
+					this.hideWindow();
+				}
 			}
 			else {
-				updateItem(booksModel, data, this.successAction.bind(this));
+				const book = {...data};
+
+				delete book._id;
+				delete book.isFiles;
+				delete book.viewedTimes;
+				delete book.orderedTimes;
+console.log(book)
+				const response = await booksModel.updateItem(data._id, book);
+				if (response) {
+					const newData = await booksModel.getDataFromServer();
+					this.dtLibrary.clearAll();
+					this.dtLibrary.parse(newData.data.getAllBooks);
+					this.hideWindow();
+				}
 			}
 
 			this.$$('bookFiles').send((response) => {

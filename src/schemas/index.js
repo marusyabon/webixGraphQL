@@ -38,8 +38,8 @@ const schema = buildSchema(`
 
     type Mutation {
         addBook(input: BookInput): Book
-        updateBook(bookID: ID, input: BookInput): Book
-        deleteBook(bookID: ID): Boolean
+        updateBook(bookID: ID!, input: BookInput): Boolean
+        deleteBook(bookID: ID!): Boolean
     }
 `);
 

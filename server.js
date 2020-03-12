@@ -27,5 +27,5 @@ mongoose.connect(
     'mongodb://localhost:27017/webixGraphqlDB',
     {useNewUrlParser: true, useFindAndModify: false},
     (err, db) => {
-    if (!err) console.log('Mongo connected');
+        if (!err) console.log('Mongo connected');
 });

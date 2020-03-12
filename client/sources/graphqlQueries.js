@@ -14,6 +14,16 @@ const bookData = `
     orderedTimes
 `;
 
+const addBookQuery = `mutation($input: BookInput) {
+    addBook(input: $input) {
+      ${bookData}
+    }
+}`
+
+const updateBookQuery = `mutation($bookID: ID!, $input: BookInput) {
+    updateBook(bookID: $bookID, input: $input)
+}`
+
 const getBookQuery = `query($bookID: ID!) {
     getBook(bookID: $bookID) {
         ${bookData}
@@ -26,4 +36,8 @@ const getAllBooksQuery = `query {
     }
 }`;
 
-export {getBookQuery, getAllBooksQuery};
+const deleteBookQuery = `mutation($bookID: ID!) {
+    deleteBook(bookID: $bookID)
+}`;
+
+export {getBookQuery, getAllBooksQuery, addBookQuery, updateBookQuery, deleteBookQuery};

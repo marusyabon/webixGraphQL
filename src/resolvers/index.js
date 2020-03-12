@@ -2,7 +2,6 @@ import mongoose from 'mongoose';
 import {GraphQLScalarType} from 'graphql';
 import {Kind} from 'graphql/language';
 import Book from '../models/books';
-import { truncateSync } from 'fs';
 
 const resolvers = {
     getAllBooks: async () => {
@@ -26,7 +25,7 @@ const resolvers = {
         const id = mongoose.Types.ObjectId(bookID);
 
         const request = await Book.findOneAndUpdate(
-            id,
+            {_id: id},
             {...input},
             {
                 fields: Object.keys(input),
@@ -35,14 +34,15 @@ const resolvers = {
         );
 
         if (request) {
-            const result = await Book.find(id);
-            return result[0];
+            return true;
         }
+        return false;
     },
 
     deleteBook: async ({bookID}) => {
         const id = mongoose.Types.ObjectId(bookID);
         const result = await Book.deleteOne({_id: id});
+
         if (result.n) {
             return true;
         }
