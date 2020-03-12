@@ -63,26 +63,26 @@ export default class bookTops extends JetView {
 		};
 	}
 
-	init() {
+	async init() {
 		this.grid = $$('booksTop');
-		booksModel.getDataFromServer().then((dbData) => {
-			let booksArr = dbData.json();
-			booksArr = booksArr.map((el) => {
-				el.year_of_publication = new Date(el.year_of_publication);
-				return el;
-			});
-			this.booksArr = booksArr;
+
+		const dbData = await booksModel.getDataFromServer();
+		let booksArr = dbData.data.getAllBooks;
+		booksArr = booksArr.map((el) => {
+			el.yearOfPublication = new Date(el.yearOfPublication);
+			return el;
 		});
+		this.booksArr = booksArr;
 
 		this.defaultConfig = [
 			{
-				id: 'book_title',
+				id: 'bookTitle',
 				sort: 'text',
 				fillspace: 1,
 				header: 'Title'
 			},
 			{
-				id: 'author_name',
+				id: 'authorName',
 				sort: 'text',
 				fillspace: 1,
 				header: 'Author'
@@ -95,14 +95,14 @@ export default class bookTops extends JetView {
 				header: 'Genres'
 			},
 			{
-				id: 'country_of_publication',
+				id: 'countryOfPublication',
 				sort: 'text',
 				width: 80,
 				css: 'center',
 				header: 'Country'
 			},
 			{
-				id: 'year_of_publication',
+				id: 'yearOfPublication',
 				sort: 'date',
 				width: 80,
 				css: 'center',
@@ -110,7 +110,7 @@ export default class bookTops extends JetView {
 				header: 'Year'
 			},
 			{
-				id: 'number_of_pages',
+				id: 'numberOfPages',
 				header: 'Pages',
 				width: 60
 			}
@@ -120,35 +120,35 @@ export default class bookTops extends JetView {
 	showOldestBooks() {
 		let data = [...this.booksArr];
 		data.sort((a, b) => {
-			return a.year_of_publication - b.year_of_publication;
+			return a.yearOfPublication - b.yearOfPublication;
 		});
 		this.showResults(data, this.defaultConfig);
 	}
 
 	showNewestBooks() {
 		let data = [...this.booksArr];
-		data.sort((a, b) => b.year_of_publication - a.year_of_publication);
+		data.sort((a, b) => b.yearOfPublication - a.yearOfPublication);
 		this.showResults(data, this.defaultConfig);
 	}
 
 	showMostPagesBooks() {
 		let data = [...this.booksArr];
-		data.sort((a, b) =>  b.number_of_pages - a.number_of_pages);
+		data.sort((a, b) =>  b.numberOfPages - a.numberOfPages);
 		this.showResults(data, this.defaultConfig);
 	}
 
 	showBooksWithLongNames() {
 		let data = [...this.booksArr];
-		data.sort((a, b) => b.book_title.length - a.book_title.length);
+		data.sort((a, b) => b.bookTitle.length - a.bookTitle.length);
 		this.showResults(data, this.defaultConfig);
 	}
 
 	showAuthorsWithMostBooks() {
 		let authors = [];
 		this.booksArr.forEach((el) => {
-			const index = authors.findIndex(author => author.name == el.author_name);
+			const index = authors.findIndex(author => author.name == el.authorName);
 			if (index === -1) {
-				authors.push({name: el.author_name, booksCount: 1});
+				authors.push({name: el.authorName, booksCount: 1});
 			}
 			else {
 				authors[index].booksCount++;
