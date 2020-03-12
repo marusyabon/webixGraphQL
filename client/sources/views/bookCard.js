@@ -1,6 +1,6 @@
 import {JetView} from 'webix-jet';
 import booksModel from '../models/books';
-import {DUMMYCOVER} from '../consts';
+import {DUMMYCOVER, URL} from '../consts';
 import {toggleElement} from '../scripts'; 
 import filesModel from '../models/files';
 
@@ -143,12 +143,12 @@ export default class BookCard extends JetView {
 						availableAudioFiles,
 						filesList,
 						audioList,
-						{height: 15},
-						{ 
-							localId: 'addingFilesButtons',
-							margin: 10,
-							cols: [ {}, addTextFile, addAudioFile, {} ] 
-						},
+						// {height: 15},
+						// { 
+						// 	localId: 'addingFilesButtons',
+						// 	margin: 10,
+						// 	cols: [ {}, addTextFile, addAudioFile, {} ] 
+						// },
 						{height: 1},
 						{
 							paddingY: 10,
@@ -172,13 +172,10 @@ export default class BookCard extends JetView {
 		this.clearForm();
 		this.isNew = book ? false : true;
 		this.bookId = book ? book._id : '';
-		// toggleElement(!this.isNew, this.$$('bookCover'));
+		toggleElement(!this.isNew, this.$$('bookCover'));
 		// toggleElement(!this.isNew, this.$$('addingFilesButtons'));
 
-		if (this.isNew) {
-			this.$$('bookCover').hide();
-		}
-		else {
+		if (!this.isNew) {
 			booksModel.getBook(book._id).then((res) => {
 				// const filesArr = book.files;
 				// const textFiles = [];
@@ -228,7 +225,7 @@ export default class BookCard extends JetView {
 				delete book.isFiles;
 				delete book.viewedTimes;
 				delete book.orderedTimes;
-console.log(book)
+
 				const response = await booksModel.updateItem(data._id, book);
 				if (response) {
 					const newData = await booksModel.getDataFromServer();
@@ -266,8 +263,8 @@ console.log(book)
 	clearForm (){
 		this.form.clearValidation();
 		this.form.clear();
-		this.$$('bookFiles').files.clearAll();
-		this.$$('audioFiles').files.clearAll();
+		// this.$$('bookFiles').files.clearAll();
+		// this.$$('audioFiles').files.clearAll();
 		this.$$('availableTextFiles').clearAll();
 		this.$$('availableAudioFiles').clearAll();
 	}

@@ -1,5 +1,5 @@
+import fetchData from '../fetchData';
 import {getBookQuery, getAllBooksQuery, addBookQuery, updateBookQuery, deleteBookQuery} from '../graphqlQueries';
-import {URL} from '../consts';
 
 class BooksModel {
 	constructor() {
@@ -7,77 +7,28 @@ class BooksModel {
 	}
 
 	async getDataFromServer() {
-		const data = await fetch(URL, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'Accept': 'application/json'
-			},
-			body: JSON.stringify({
-				query: getAllBooksQuery
-			})
-		});
-		return data.json();
+		const data = await fetchData(getAllBooksQuery);
+		return data;
 	}
 
 	async getBook(bookID) {
-		const data = await fetch(URL, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'Accept': 'application/json'
-			},
-			body: JSON.stringify({
-				query: getBookQuery,
-				variables: {bookID}
-			})
-		});
-		return data.json();
+		const data = await fetchData(getBookQuery, {bookID});
+		return data;
 	}
 
 	async addItem(input) {
-		const data = await fetch(URL, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'Accept': 'application/json'
-			},
-			body: JSON.stringify({
-				query: addBookQuery,
-				variables: {input}
-			})
-		});
-		return data.json();
+		const data = await fetchData(addBookQuery, {input});
+		return data;
 	}
 
 	async updateItem(bookID, input) {
-		const data = await fetch(URL, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'Accept': 'application/json'
-			},
-			body: JSON.stringify({
-				query: updateBookQuery,
-				variables: {bookID, input}
-			})
-		});
-		return data.json();
+		const data = await fetchData(updateBookQuery, {bookID, input});
+		return data;
 	}
 
 	async removeItem(bookID) {
-		const data = await fetch(URL, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'Accept': 'application/json'
-			},
-			body: JSON.stringify({
-				query: deleteBookQuery,
-				variables: {bookID}
-			})
-		});
-		return data.json();
+		const data = await fetchData(deleteBookQuery, {bookID});
+		return data;
 	}
 }
 
