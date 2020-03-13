@@ -1,7 +1,6 @@
 import {JetView} from 'webix-jet';
 import BookCard from './bookCard';
 import booksModel from '../models/books';
-import filesModel from '../models/files';
 
 export default class Library extends JetView {
 	config() {
@@ -76,14 +75,6 @@ export default class Library extends JetView {
 					header: 'Available'
 				},
 				{
-					id: 'ebook',
-					header: ['eBook', {content:"selectFilter"}],
-					width: 70,
-					template: (obj) => {
-						return obj.ebook==='yes' ? '<i class="fas fa-check"></i>' : ''
-					}					
-				},
-				{
 					id: 'viewCol',
 					header: 'View',
 					css: 'center',
@@ -123,9 +114,7 @@ export default class Library extends JetView {
 
 	async init() {
 		this.grid = $$('dtLibrary');
-		await this.getData();
-		// await this.getFiles();
-		// this.checkFiles();		
+		await this.getData();	
 
 		this.grid.parse(this.booksArr);
 		this._bookCard = this.ui(BookCard);
@@ -145,24 +134,6 @@ export default class Library extends JetView {
 		} catch (err) {
 			console.log(err)
 		}
-	}
-
-	async getFiles() {
-		const dbData = await filesModel.getDataFromServer();
-		this.filesArr = dbData.json();						
-	}
-
-	checkFiles() {
-		this.booksArr.forEach((book, i) => {
-			const isFiles = this.filesArr.find((el) => el.book_id === book.id);
-			
-			if(isFiles) {
-				this.booksArr[i].ebook = 'yes';
-			}
-			else {
-				this.booksArr[i].ebook = 'no';
-			}
-		});
 	}
 
 	showBookCard(id) {

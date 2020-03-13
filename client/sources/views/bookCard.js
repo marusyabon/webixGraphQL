@@ -1,8 +1,7 @@
 import {JetView} from 'webix-jet';
 import booksModel from '../models/books';
-import {DUMMYCOVER, URL} from '../consts';
+import {DUMMYCOVER} from '../consts';
 import {toggleElement} from '../scripts'; 
-import filesModel from '../models/files';
 
 export default class BookCard extends JetView {
 	config() {
@@ -60,58 +59,6 @@ export default class BookCard extends JetView {
 			borderless:true
 		};
 
-		const addAudioFile = {
-			view: 'uploader',
-			label: '<i class="fas fa-music"></i> Upload audio',
-			localId: 'audioFiles',
-			type: 'htmlbutton',
-			autosend: false,
-			width: 150,
-			formData: () => {
-				return {
-					userId: this.userId,
-					bookId: this.bookId
-				};
-			},
-			accept: '.mp3',
-			upload: 'http://localhost:3000/files/upload/audio',
-			link: 'audioList'
-		};
-
-		const audioList = {
-			view: 'list',
-			type: 'uploader',
-			id: 'audioList',
-			autoheight:true, 
-			borderless:true
-		};
-
-		const availableTextFiles = {
-			view: 'activeList',
-			localId: 'availableTextFiles',
-			autoheight: true,
-			template: '#name# <span class="list_button"><i class = "fas fa-times"></i></span>',
-			onClick: {
-				'fa-times': (ev, id) => {
-					this.removeFile(this.$$('availableTextFiles'), id);
-					return false;
-				}
-			}
-		};
-
-		const availableAudioFiles = {
-			view: 'activeList',
-			localId: 'availableAudioFiles',
-			autoheight: true,
-			template: '#name# <span class="list_button"><i class = "fas fa-times"></i></span>',
-			onClick: {
-				'fa-times': (ev, id) => {
-					this.removeFile(this.$$('availableAudioFiles'), id);
-					return false;
-				}
-			}
-		};
-
 		const saveBtn = {
 			view: 'button',
 			type: 'form',
@@ -132,23 +79,6 @@ export default class BookCard extends JetView {
 					rows: [
 						bookCover, 
 						bookCard,
-						{
-							view: 'template',
-							template: 'Files',
-							autoheight: true,
-							css: 'center'
-						},
-						{height: 2},
-						availableTextFiles,
-						availableAudioFiles,
-						filesList,
-						audioList,
-						// {height: 15},
-						// { 
-						// 	localId: 'addingFilesButtons',
-						// 	margin: 10,
-						// 	cols: [ {}, addTextFile, addAudioFile, {} ] 
-						// },
 						{height: 1},
 						{
 							paddingY: 10,
@@ -173,29 +103,11 @@ export default class BookCard extends JetView {
 		this.isNew = book ? false : true;
 		this.bookId = book ? book._id : '';
 		toggleElement(!this.isNew, this.$$('bookCover'));
-		// toggleElement(!this.isNew, this.$$('addingFilesButtons'));
 
 		if (!this.isNew) {
 			booksModel.getBook(book._id).then((res) => {
-				// const filesArr = book.files;
-				// const textFiles = [];
-				// const audioFiles = [];
-
-				// filesArr.forEach((file) => {
-				// 	switch(file.dataType) {
-				// 		case 'text':
-				// 			textFiles.push(file);
-				// 			break;
-				// 		case 'audio':
-				// 			audioFiles.push(file);
-				// 			break;
-				// 	}
-				// });
-
 				this.form.setValues(res.data.getBook);
 				this.$$('bookCover').setValues(book.coverPhoto || DUMMYCOVER);
-				// this.$$('availableTextFiles').parse(textFiles);
-				// this.$$('availableAudioFiles').parse(audioFiles);
 			});						
 		}		
 
@@ -234,25 +146,7 @@ export default class BookCard extends JetView {
 					this.hideWindow();
 				}
 			}
-
-			this.$$('bookFiles').send((response) => {
-				if(response){
-					this.webix.message(response.message);
-				}
-			});
-
-			this.$$('audioFiles').send((response) => {
-				if(response){
-					this.webix.message(response.message);
-				}
-			});
 		}		
-	}
-
-	removeFile(targetList, id) {
-		filesModel.removeItem(id).then(() => {
-			targetList.remove(id);
-		});
 	}
 
 	hideWindow() {
@@ -263,9 +157,7 @@ export default class BookCard extends JetView {
 	clearForm (){
 		this.form.clearValidation();
 		this.form.clear();
-		// this.$$('bookFiles').files.clearAll();
-		// this.$$('audioFiles').files.clearAll();
+		this.$$('bookFiles').files.clearAll();
 		this.$$('availableTextFiles').clearAll();
-		this.$$('availableAudioFiles').clearAll();
 	}
 }
